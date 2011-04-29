@@ -22,7 +22,7 @@ public class bShortcutPlayerListener extends PlayerListener {
         
         String pre;
         int i = message.indexOf(' ');
-        if(i < 0) { i = message.length() - 1; }
+        if(i < 0) { i = message.length(); }
         
         pre = (String) message.subSequence(0, i);
         message = (String) message.subSequence(i, message.length());

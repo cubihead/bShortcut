@@ -1,3 +1,11 @@
 name: bShortcut
 main: com.beecub.bShortcut.bShortcut
 version: 1.0.0
+author: beecub
+description: >
+             Shortcuts
+commands:
+  bShortcut:
+    description: Reload Command for bShortcut
+    usage: |
+           /<command> [reload]

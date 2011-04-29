@@ -9,7 +9,7 @@ import org.bukkit.util.config.Configuration;
 
 public class bConfigManager {
 	
-	protected bShortcut bShortcut;
+	protected static bShortcut bShortcut;
     protected static Configuration conf;
     protected File confFile;
     static List<String> shortcuts = new LinkedList<String>();    
@@ -30,9 +30,9 @@ public class bConfigManager {
         else {
         	this.confFile = new File(bShortcut.getDataFolder(), "config.yml");
             this.conf = new Configuration(confFile);
-            shortcuts.add("/i");
-            shortcuts.add("/give");
-            conf.setProperty("shortcuts.shortcuts", shortcuts);
+            conf.setProperty("shortcuts.commands./breload", "/bShortcut reload");
+            conf.setProperty("shortcuts.commands./g", "/give");
+            conf.setProperty("shortcuts.commands./cleanstone", "/item 1 64");
             conf.save();
         }
         
@@ -41,7 +41,7 @@ public class bConfigManager {
 	static void load() {	    
     	conf.load();
     	shortcuts.clear();
-        shortcuts = conf.getStringList("shortcuts.shortcuts", shortcuts);
+        shortcuts = conf.getStringList("shortcuts.commands", shortcuts);
     }
 	
 	static void reload() {
@@ -50,13 +50,11 @@ public class bConfigManager {
 	
    static boolean handleShortcuts(Player player, String pre, String message) {
        String preNew = "";
-       if(shortcuts.contains(pre)) {
-           preNew = conf.getString("shortcuts.shortcuts." + pre, null);
-           if(preNew != null || preNew != "") {
-               player.performCommand(preNew + message);
-               return true;
-           }
-       }       
+       preNew = conf.getString("shortcuts.commands." + pre, null);
+       if(preNew != null && preNew != "") {
+           player.chat(preNew + message);
+           return true;
+       }
     return false;
     }
 }
