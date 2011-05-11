@@ -59,14 +59,17 @@ public class bChat {
         log.info( "[bColoredChat] " + message);
         server.broadcastMessage(message);
     }
+    
     public static void sendMessageToPlayer(Player player, String message) {
         message = bChat.replaceColorCodes(message);
         player.sendMessage(message);
     }
+    
     public static void sendMessageToServer(String message) {
         message = bChat.replaceColorCodes(message);
         log.info(message);
     }
+    
     public static void sendMessageToCommandSender(CommandSender sender, String message) {
         if(sender instanceof Player) {
             bChat.sendMessageToPlayer((Player) sender, message);

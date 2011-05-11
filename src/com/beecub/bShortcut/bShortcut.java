@@ -32,6 +32,7 @@ public class bShortcut extends JavaPlugin {
 		conf = bConfigManager.conf;
 		
 	}
+	
 	public void onDisable() {
 		log.info("[" + pdfFile.getName() + "]" + " version " + pdfFile.getVersion() + " disabled!");
 	}
@@ -44,5 +45,9 @@ public class bShortcut extends JavaPlugin {
             return true;
         }
         return false;
+	}
+	
+	public String setupDefaultShortcut(String command, String shortcut, String alternativeShortcut) {
+	    return bConfigManager.setupDefaultShortcuts(command, shortcut, alternativeShortcut);
 	}
 }
