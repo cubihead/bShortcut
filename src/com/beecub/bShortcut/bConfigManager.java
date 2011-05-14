@@ -10,9 +10,11 @@ import org.bukkit.util.config.Configuration;
 public class bConfigManager {
 	
 	protected static bShortcut bShortcut;
+	protected static bConfigManagerImport bConfigManagerImport;
     protected static Configuration conf;
     protected File confFile;
     static List<String> shortcuts = new LinkedList<String>();
+    static List<String> shortcutsImport = new LinkedList<String>();
 	
 	@SuppressWarnings("static-access")
 	public bConfigManager(bShortcut bShortcut) {
@@ -24,8 +26,7 @@ public class bConfigManager {
         if (f.exists())
         {
         	conf = new Configuration(f);
-        	conf.load();
-        	
+        	conf.load();        	
         }
         else {
         	this.confFile = new File(bShortcut.getDataFolder(), "config.yml");
@@ -44,40 +45,54 @@ public class bConfigManager {
             bsp2.add("/m &1 there you got &3 of &2 from me.");
             conf.setProperty("shortcuts.commands./g", bsp2);
             conf.save();
-        }
-        
-    }    
+        }        
+        bConfigManagerImport = new bConfigManagerImport(bShortcut);
+    }
     
 	static void load() {	    
     	conf.load();
     	shortcuts.clear();
         shortcuts = conf.getKeys("shortcuts.commands");
+        shortcutsImport = bConfigManagerImport.getShortcuts();
     }
 	
 	static void reload() {
 		load();
 	}
-	
-	
-	static boolean handleShortcuts(Player player, String pre, String message) {
-        if(shortcuts.contains(pre)) {
-            String performMessage;
-            List<String> perform = new LinkedList<String>();
+		
+	@SuppressWarnings("static-access")
+    static boolean handleShortcuts(Player player, String pre, String message) {
+	    List<String> perform = new LinkedList<String>();
+        if(shortcuts.contains(pre)) {           
             perform = conf.getStringList("shortcuts.commands." + pre, null);
-            if(perform != null && perform.size() > 1) {
-                for(int i = 0; i < perform.size(); i++) {
-                    performMessage = perform.get(i);
-                    performMessage = handleVariables(player, performMessage, message);
-                    player.chat(performMessage);
-                }
+            if(performCommand(player, perform, pre, message)) {
                 return true;
             }
-            else if(perform != null && perform.size() == 0) {
-                performMessage = conf.getString("shortcuts.commands." + pre, null);
+        }
+        else if(shortcutsImport.contains(pre)){
+            perform = bConfigManagerImport.conf.getStringList("shortcuts.commands." + pre, null);
+            if(performCommand(player, perform, pre, message)) {
+                return true;
+            }
+        }
+        return false;
+	}
+	
+	static boolean performCommand(Player player, List<String> perform, String pre, String message) {
+	    String performMessage;
+        if(perform != null && perform.size() > 1) {
+            for(int i = 0; i < perform.size(); i++) {
+                performMessage = perform.get(i);
                 performMessage = handleVariables(player, performMessage, message);
                 player.chat(performMessage);
-                return true;
             }
+            return true;
+        }
+        else if(perform != null && perform.size() == 0) {
+            performMessage = conf.getString("shortcuts.commands." + pre, null);
+            performMessage = handleVariables(player, performMessage, message);
+            player.chat(performMessage);
+            return true;
         }
         return false;
 	}
@@ -92,28 +107,5 @@ public class bConfigManager {
 	    performMessage = performMessage.replaceAll("&player", player.getName());
 	    performMessage = performMessage.replaceAll("&args", message);
 	    return performMessage;
-    }
-    
-	
-	// not yet used, allow other plugins to setup default shortcuts
-    static String setupDefaultShortcuts(String command, String shortcut, String alternativeShortcut) {
-        String test;
-        if(conf != null) {
-            test = conf.getString("shortcuts.commands." + shortcut, "");
-            if(test != null && test != "") {
-                test = conf.getString("shortcuts.commands." + alternativeShortcut, "");
-                if( test != null && test != "") {
-                    conf.setProperty("shortcuts.commands." + alternativeShortcut, command);
-                    conf.save();
-                    return alternativeShortcut;
-                }
-            }
-            else {
-                conf.setProperty("shortcuts.commands." + shortcut, command);
-                conf.save();
-                return shortcut;
-            }
-        }
-        return null;
     }
 }

@@ -8,6 +8,8 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
 
+import util.bChat;
+
 import java.util.logging.Logger;
 
 
@@ -45,9 +47,5 @@ public class bShortcut extends JavaPlugin {
             return true;
         }
         return false;
-	}
-	
-	public String setupDefaultShortcut(String command, String shortcut, String alternativeShortcut) {
-	    return bConfigManager.setupDefaultShortcuts(command, shortcut, alternativeShortcut);
 	}
 }
