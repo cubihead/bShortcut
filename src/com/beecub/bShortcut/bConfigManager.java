@@ -7,6 +7,8 @@ import java.util.List;
 import org.bukkit.entity.Player;
 import org.bukkit.util.config.Configuration;
 
+import util.bChat;
+
 public class bConfigManager {
 	
 	protected static bShortcut bShortcut;
@@ -53,15 +55,14 @@ public class bConfigManager {
     	conf.load();
     	shortcuts.clear();
         shortcuts = conf.getKeys("shortcuts.commands");
-        shortcutsImport = bConfigManagerImport.getShortcuts();
+        //shortcutsImport = bConfigManagerImport.getShortcuts();
     }
 	
 	static void reload() {
 		load();
 	}
 		
-	@SuppressWarnings("static-access")
-    static boolean handleShortcuts(Player player, String pre, String message) {
+	static boolean handleShortcuts(Player player, String pre, String message) {
 	    List<String> perform = new LinkedList<String>();
         if(shortcuts.contains(pre)) {           
             perform = conf.getStringList("shortcuts.commands." + pre, null);
@@ -69,12 +70,12 @@ public class bConfigManager {
                 return true;
             }
         }
-        else if(shortcutsImport.contains(pre)){
-            perform = bConfigManagerImport.conf.getStringList("shortcuts.commands." + pre, null);
-            if(performCommand(player, perform, pre, message)) {
-                return true;
-            }
-        }
+//        else if(shortcutsImport.contains(pre)){
+//            perform = bConfigManagerImport.conf.getStringList("shortcuts.commands." + pre, null);
+//            if(performCommand(player, perform, pre, message)) {
+//                return true;
+//            }
+//        }
         return false;
 	}
 	
@@ -84,14 +85,38 @@ public class bConfigManager {
             for(int i = 0; i < perform.size(); i++) {
                 performMessage = perform.get(i);
                 performMessage = handleVariables(player, performMessage, message);
-                player.chat(performMessage);
+                if(performMessage.startsWith("&system")) {
+                    performMessage = performMessage.replaceAll("&system", "");
+                    bChat.broadcastMessage(performMessage);
+                }
+                else if(performMessage.contains("&onlineplayers")) {
+                    Player[] players = bShortcut.getServer().getOnlinePlayers();
+                    for(int j = 0; j < players.length; j++) {
+                        player.chat(performMessage.replaceAll("&onlineplayers", players[j].getName()));
+                    }
+                }
+                else {
+                    player.chat(performMessage);
+                }
             }
             return true;
         }
         else if(perform != null && perform.size() == 0) {
             performMessage = conf.getString("shortcuts.commands." + pre, null);
             performMessage = handleVariables(player, performMessage, message);
-            player.chat(performMessage);
+            if(performMessage.startsWith("&system")) {
+                performMessage = performMessage.replaceAll("&system", "");
+                bChat.broadcastMessage(performMessage);
+            }
+            else if(performMessage.contains("&onlineplayers")) {
+                Player[] players = bShortcut.getServer().getOnlinePlayers();
+                for(int j = 0; j < players.length; j++) {
+                    player.chat(performMessage.replaceAll("&onlineplayers", players[j].getName()));
+                }
+            }
+            else {
+                player.chat(performMessage);
+            }
             return true;
         }
         return false;
